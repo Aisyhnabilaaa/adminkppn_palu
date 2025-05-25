@@ -37,7 +37,7 @@ const FormInputTKD = ({ hideAccessCheck = false }) => {
     e.preventDefault()
 
     try {
-      await axios.post('http://localhost:3000/tkd/create', formData, {
+      await axios.post('https://charttkd-production.up.railway.app/tkd/create', formData, {
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': ADMIN_API_KEY

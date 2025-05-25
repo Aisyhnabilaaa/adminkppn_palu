@@ -16,7 +16,7 @@ const AdminDashboard = () => {
     setMessage('') // reset pesan
 
     try {
-      const res = await fetch('http://localhost:3000/admin/login', {
+      const res = await fetch('https://charttkd-production.up.railway.app/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, kode }),

@@ -17,8 +17,8 @@ const AdminTKDTable = ({ hideAccessCheck = false }) => {
       if (!tahun || !daerah) return;
 
       const [efisiensiRes, realisasiRes] = await Promise.all([
-        axios.get(`http://localhost:3000/tkd/efisiensi?tahun=${tahun}&daerah=${daerah}`),
-        axios.get(`http://localhost:3000/tkd/realisasi?tahun=${tahun}&daerah=${daerah}`),
+        axios.get(`https://charttkd-production.up.railway.app/tkd/efisiensi?tahun=${tahun}&daerah=${daerah}`),
+        axios.get(`https://charttkd-production.up.railway.app/tkd/realisasi?tahun=${tahun}&daerah=${daerah}`),
       ]);
 
       setEfisiensiData(efisiensiRes.data);
@@ -46,7 +46,7 @@ const AdminTKDTable = ({ hideAccessCheck = false }) => {
     if (!confirm("Yakin ingin menghapus data ini?")) return;
 
     try {
-      await axios.delete(`http://localhost:3000/tkd/delete/${id}`, {
+      await axios.delete(`https://charttkd-production.up.railway.app/tkd/delete/${id}`, {
         headers: {
           'x-api-key': ADMIN_API_KEY,
         },
