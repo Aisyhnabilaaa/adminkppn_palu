@@ -7,7 +7,7 @@ export default function LoginForm({ onLogin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch('https://charttkd-production.up.railway.app/login', {
+    const res = await fetch('https://charttkd-production.up.railway.app/admin/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, kode }),

@@ -28,7 +28,7 @@ const AlokasiPage = () => {
 
   const fetchChart = async (year) => {
     try {
-      const res = await axios.get(`https://charttkd-production.up.railway.app/api/alokasi/grafik?tahun=${year}`, {
+      const res = await axios.get(`https://charttkd-production.up.railway.app/alokasi/grafik?tahun=${year}`, {
         headers: { 'x-api-key': import.meta.env.VITE_ADMIN_API_KEY }
       });
 
@@ -69,7 +69,7 @@ const AlokasiPage = () => {
     e.preventDefault();
     try {
       await axios.post(
-        'https://charttkd-production.up.railway.app/api/alokasi/create',
+        'https://charttkd-production.up.railway.app/alokasi/create',
         {
           ...form,
           tahun: parseInt(form.tahun),
@@ -96,7 +96,7 @@ const AlokasiPage = () => {
     if (!confirmDelete) return;
   
     try {
-      await axios.delete(`https://charttkd-production.up.railway.app/api/alokasi/${id}`, {
+      await axios.delete(`https://charttkd-production.up.railway.app/alokasi/${id}`, {
         headers: {
           'x-api-key': import.meta.env.ADMIN_API_KEY
         }        

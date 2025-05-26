@@ -8,7 +8,7 @@ const TabelAlokasi = ({ }) => {
 
     const fetchData = async () => {
         try {
-          const res = await axios.get(`https://charttkd-production.up.railway.app/api/alokasi/grafik?tahun=${tahun}`);
+          const res = await axios.get(`https://charttkd-production.up.railway.app/alokasi/grafik?tahun=${tahun}`);
           console.log(res.data); // hanya untuk debug
           setData(res.data); // ini penting
         } catch (error) {
@@ -31,7 +31,7 @@ const TabelAlokasi = ({ }) => {
         if (!confirmDelete) return;
 
         try {
-            await axios.delete(`https://charttkd-production.up.railway.app/api/alokasi/${id}`, {
+            await axios.delete(`https://charttkd-production.up.railway.app/alokasi/${id}`, {
                 headers: {
                     'x-api-key': import.meta.env.ADMIN_API_KEY
                 }
