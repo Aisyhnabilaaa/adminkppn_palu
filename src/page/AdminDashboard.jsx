@@ -1,13 +1,22 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
+import { API_URL } from '../config'
 import FormInputTKD from './FormInputTKD'
 import TablePage from './TablePage'
 import AlokasiPage from './AlokasiPage'
 
+const TABS = [
+  { id: 'form', label: 'Input Data TKD' },
+  { id: 'table', label: 'Tabel TKD' },
+  { id: 'alokasi', label: 'Input Data Alokasi' },
+]
+
 const AdminDashboard = () => {
   const [email, setEmail] = useState('')
   const [kode, setKode] = useState('')
-  const [hasAccess, setHasAccess] = useState(false)
+  const [hasAccess, setHasAccess] = useState(
+    () => localStorage.getItem('hasAccess') === 'true'
+  )
   const [activeTab, setActiveTab] = useState('form')
   const [message, setMessage] = useState('')
 
@@ -16,7 +25,7 @@ const AdminDashboard = () => {
     setMessage('') // reset pesan
 
     try {
-      const res = await fetch('https://charttkd-production.up.railway.app/admin/login', {
+      const res = await fetch(`${API_URL}/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, kode }),
@@ -41,16 +50,6 @@ const AdminDashboard = () => {
     localStorage.removeItem('hasAccess'); // Hapus akses dari localStorage
     // Tambahkan logika tambahan jika perlu, seperti mereset state lainnya
   };
-
-  useEffect(() => {
-    const access = localStorage.getItem('hasAccess');
-    console.log('Access from localStorage:', access); // Log status yang diambil
-    if (access === 'true') {
-      setHasAccess(true);
-    }
-  }, []);
-
-
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -87,28 +86,19 @@ const AdminDashboard = () => {
         <div className="max-w-7xl mx-auto">
           {/* Navbar/Tabs */}
           <div className="flex justify-center gap-4 mb-8">
-            <button
-              onClick={() => setActiveTab('form')}
-              className={`px-4 py-2 rounded-md font-semibold ${activeTab === 'form' ? 'bg-blue-600 text-white' : 'bg-white border'}`}
-            >
-              Input Data TKD
-            </button>
-            <button
-              onClick={() => setActiveTab('table')}
-              className={`px-4 py-2 rounded-md font-semibold ${activeTab === 'table' ? 'bg-blue-600 text-white' : 'bg-white border'}`}
-            >
-              Tabel TKD
-            </button>
-            <button
-              onClick={() => setActiveTab('alokasi')}
-              className={`px-4 py-2 rounded-md font-semibold ${activeTab === 'alokasi' ? 'bg-blue-600 text-white' : 'bg-white border'}`}
-            >
-              Input Data Alokasi
-            </button>
+            {TABS.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-2 rounded-md font-semibold ${activeTab === tab.id ? 'bg-blue-600 text-white' : 'bg-white border'}`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
-                    {/* Tombol Logout */}
-                    <div className="flex justify-end mb-4">
+          {/* Tombol Logout */}
+          <div className="flex justify-end mb-4">
             <button
               onClick={handleLogout}
               className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700"
@@ -118,8 +108,8 @@ const AdminDashboard = () => {
           </div>
 
           {/* Halaman Aktif */}
-          {activeTab === 'form' && <FormInputTKD hideAccessCheck={true} />}
-          {activeTab === 'table' && <TablePage hideAccessCheck={true} />}
+          {activeTab === 'form' && <FormInputTKD hideAccessCheck />}
+          {activeTab === 'table' && <TablePage hideAccessCheck />}
           {activeTab === 'alokasi' && <AlokasiPage />}
 
         </div>

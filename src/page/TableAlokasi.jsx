@@ -1,37 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config';
 
-const TabelAlokasi = ({ }) => {
+const TabelAlokasi = () => {
 
     const [data, setData] = useState([]);
     const [tahun, setTahun] = useState(new Date().getFullYear());
 
-    const fetchData = async () => {
-        try {
-          const res = await axios.get(`https://charttkd-production.up.railway.app/alokasi/grafik?tahun=${tahun}`);
-          console.log(res.data); // hanya untuk debug
-          setData(res.data); // ini penting
-        } catch (error) {
-          console.error("Gagal mengambil data:", error);
-          setData([]); // kosongkan data jika terjadi error
-        }
-      };
-      
-      
-      
-
-      useEffect(() => {
-        console.log("Fetching data untuk tahun:", tahun);
-        fetchData(); // hapus parameter
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await axios.get(`${API_URL}/alokasi/grafik?tahun=${tahun}`);
+                setData(res.data);
+            } catch (error) {
+                console.error("Gagal mengambil data:", error);
+                setData([]); // kosongkan data jika terjadi error
+            }
+        };
+        fetchData();
     }, [tahun]);
-    
 
     const handleDelete = async (id) => {
         const confirmDelete = window.confirm("Apakah Anda yakin ingin menghapus data ini?");
         if (!confirmDelete) return;
 
         try {
-            await axios.delete(`https://charttkd-production.up.railway.app/alokasi/${id}`, {
+            await axios.delete(`${API_URL}/alokasi/${id}`, {
                 headers: {
                     'x-api-key': import.meta.env.ADMIN_API_KEY
                 }

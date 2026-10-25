@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
-import TabelAlokasi from './TableAlokasi'; // pastikan path benar
+import TabelAlokasi from './TableAlokasi';
+import { API_URL, DAERAH_ALOKASI } from '../config';
 
 const AlokasiPage = () => {
   const currentYear = new Date().getFullYear();
-  const [tahun, setTahun] = useState(String(currentYear));
-  const [data, setData] = useState([]);
   const [form, setForm] = useState({
     tahun: currentYear,
     daerah: '',
@@ -17,47 +16,11 @@ const AlokasiPage = () => {
     infis: ''
   });
 
-  const yearOptions = Array.from({ length: 5 }, (_, i) => String(currentYear - 3 + i));
-
   const parseNumber = (value) => {
     if (typeof value !== 'string') return value;
     const clean = value.replace(/,/g, '.');
     const parsed = parseFloat(clean);
     return isNaN(parsed) ? 0 : parsed;
-  };
-
-  const fetchChart = async (year) => {
-    try {
-      const res = await axios.get(`https://charttkd-production.up.railway.app/alokasi/grafik?tahun=${year}`, {
-        headers: { 'x-api-key': import.meta.env.VITE_ADMIN_API_KEY }
-      });
-
-      const order = [
-        "Provinsi Sulawesi Tengah",
-        "Kota Palu",
-        "Kabupaten Sigi",
-        "Kabupaten Donggala",
-        "Kabupaten Parigi Moutong"
-      ];
-
-      const parsedData = res.data.map(item => ({
-        ...item,
-        dbh: parseNumber(item.dbh),
-        dau: parseNumber(item.dau),
-        dakFisik: parseNumber(item.dakFisik),
-        dakNonfisik: parseNumber(item.dakNonfisik),
-        danaDesa: parseNumber(item.danaDesa),
-        infis: parseNumber(item.infis),
-        total: parseNumber(item.total)
-      })).sort((a, b) => order.indexOf(a.daerah) - order.indexOf(b.daerah));
-
-      console.log("Response dari server:", res.data);
-      console.log("Parsed data:", parsedData);
-
-      setData(parsedData);
-    } catch (err) {
-      console.error('Gagal ambil data chart', err);
-    }
   };
 
   const handleChange = (e) => {
@@ -69,7 +32,7 @@ const AlokasiPage = () => {
     e.preventDefault();
     try {
       await axios.post(
-        'https://charttkd-production.up.railway.app/alokasi/create',
+        `${API_URL}/alokasi/create`,
         {
           ...form,
           tahun: parseInt(form.tahun),
@@ -84,37 +47,11 @@ const AlokasiPage = () => {
       );
 
       alert('Data berhasil dikirim');
-      fetchChart(tahun);
     } catch (err) {
       console.error('Gagal mengirim data', err);
       alert('Gagal mengirim data');
     }
   };
-
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Apakah Anda yakin ingin menghapus data ini?");
-    if (!confirmDelete) return;
-  
-    try {
-      await axios.delete(`https://charttkd-production.up.railway.app/alokasi/${id}`, {
-        headers: {
-          'x-api-key': import.meta.env.ADMIN_API_KEY
-        }        
-      });
-      alert("Data berhasil dihapus.");
-      // Update state setelah delete berhasil
-    } catch (error) {
-      console.error("Gagal menghapus data", error);
-      alert("Gagal menghapus data.");
-    }
-  };
-  
-
-  useEffect(() => {
-    console.log("Fetching data untuk tahun:", tahun);
-    fetchChart(tahun);
-  }, [tahun]);
-
 
   const labelMap = {
     tahun: 'Tahun Anggaran',
@@ -145,11 +82,9 @@ const AlokasiPage = () => {
         className="border p-2 rounded"
       >
         <option value="">Pilih Daerah</option>
-        <option value="Provinsi Sulawesi Tengah">Provinsi Sulawesi Tengah</option>
-        <option value="Kota Palu">Kota Palu</option>
-        <option value="Kabupaten Sigi">Kabupaten Sigi</option>
-        <option value="Kabupaten Donggala">Kabupaten Donggala</option>
-        <option value="Kabupaten Parigi Moutong">Kabupaten Parigi Moutong</option>
+        {DAERAH_ALOKASI.map(d => (
+          <option key={d} value={d}>{d}</option>
+        ))}
       </select>
     ) : (
       <>
@@ -181,8 +116,7 @@ const AlokasiPage = () => {
           </button>
         </form>
 
-        {/* ✅ Ini seharusnya bagian yang muncul */}
-        <TabelAlokasi data={data} onDelete={handleDelete} />
+        <TabelAlokasi />
 
       </div>
     </div>

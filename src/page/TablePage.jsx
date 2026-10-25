@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
+import { API_URL, DAERAH_TKD } from "../config";
 
 const ADMIN_API_KEY = import.meta.env.VITE_ADMIN_API_KEY;
 
@@ -17,8 +18,8 @@ const AdminTKDTable = ({ hideAccessCheck = false }) => {
       if (!tahun || !daerah) return;
 
       const [efisiensiRes, realisasiRes] = await Promise.all([
-        axios.get(`https://charttkd-production.up.railway.app/tkd/efisiensi?tahun=${tahun}&daerah=${daerah}`),
-        axios.get(`https://charttkd-production.up.railway.app/tkd/realisasi?tahun=${tahun}&daerah=${daerah}`),
+        axios.get(`${API_URL}/tkd/efisiensi?tahun=${tahun}&daerah=${daerah}`),
+        axios.get(`${API_URL}/tkd/realisasi?tahun=${tahun}&daerah=${daerah}`),
       ]);
 
       setEfisiensiData(efisiensiRes.data);
@@ -46,7 +47,7 @@ const AdminTKDTable = ({ hideAccessCheck = false }) => {
     if (!confirm("Yakin ingin menghapus data ini?")) return;
 
     try {
-      await axios.delete(`https://charttkd-production.up.railway.app/tkd/delete/${id}`, {
+      await axios.delete(`${API_URL}/tkd/delete/${id}`, {
         headers: {
           'x-api-key': ADMIN_API_KEY,
         },
@@ -97,11 +98,9 @@ const AdminTKDTable = ({ hideAccessCheck = false }) => {
               required
             >
               <option value="">Pilih Daerah</option>
-              <option value="Sulawesi Tengah">Sulawesi Tengah</option>
-              <option value="Kota Palu">Kota Palu</option>
-              <option value="Parigi Moutong">Parigi Moutong</option>
-              <option value="Kabupaten Sigi">Kabupaten Sigi</option>
-              <option value="Kabupaten Donggala">Kabupaten Donggala</option>
+              {DAERAH_TKD.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
             </select>
 
             <input
@@ -131,9 +130,7 @@ const AdminTKDTable = ({ hideAccessCheck = false }) => {
               </thead>
               <tbody>
                 {efisiensiData.map((item, index) => {
-                  console.log(item); // Tambahkan ini untuk memastikan 'id' ada
                   return (
-
                     <tr key={index} className="text-center bg-white font-medium text-gray-600">
                       <td className="border p-2">{item.jenis_tkd}</td>
                       <td className="border p-2">{item.semula.toLocaleString("id-ID")}</td>
@@ -171,23 +168,12 @@ const AdminTKDTable = ({ hideAccessCheck = false }) => {
               </thead>
               <tbody>
                 {realisasiData.map((item, index) => (
-                  <tr key={index} className="text-center text-center bg-white font-medium text-gray-600">
+                  <tr key={index} className="text-center bg-white font-medium text-gray-600">
                     <td className="border p-2">{item.jenis_tkd}</td>
                     <td className="border p-2">{item.pagu.toLocaleString("id-ID")}</td>
                     <td className="border p-2">{item.realisasi.toLocaleString("id-ID")}</td>
                     <td className="border p-2">{item.sisa_pagu.toLocaleString("id-ID")}</td>
                     <td className="border p-2">{item.persentase}%</td>
-                    {/* <td className="border p-2">
-                      <button
-                        onClick={() => handleDeleteTKD(item.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded mx-2">
-                        HAPUS
-                      </button>
-
-                      <button className="bg-blue-500 hover:bg-blue-700 text-white py-1 px-2 rounded ">
-                        EDIT
-                      </button>
-                    </td> */}
                   </tr>
                 ))}
               </tbody>

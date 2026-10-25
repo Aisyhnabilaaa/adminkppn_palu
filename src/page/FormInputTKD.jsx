@@ -1,22 +1,34 @@
 import { useState } from 'react'
 import axios from 'axios'
+import { API_URL, DAERAH_TKD } from '../config'
 
 const ADMIN_API_KEY = import.meta.env.VITE_ADMIN_API_KEY
+
+const EMPTY_FORM = {
+  jenis_tkd: '',
+  semula: '',
+  menjadi: '',
+  pencadangan: '',
+  pagu: '',
+  realisasi: '',
+  tahun: '',
+  daerah: ''
+}
+
+// Field nominal (Rupiah) yang tampilannya sama
+const RUPIAH_FIELDS = [
+  { name: 'semula', label: 'Semula' },
+  { name: 'menjadi', label: 'Menjadi (Rp)' },
+  { name: 'pencadangan', label: 'Pencadangan (Rp)' },
+  { name: 'pagu', label: 'Pagu (Rp)' },
+  { name: 'realisasi', label: 'Realisasi (Rp)' }
+]
 
 const FormInputTKD = ({ hideAccessCheck = false }) => {
 
   const [apiKeyInput, setApiKeyInput] = useState('')
   const [hasAccess, setHasAccess] = useState(false)
-  const [formData, setFormData] = useState({
-    jenis_tkd: '',
-    semula: '',
-    menjadi: '',
-    pencadangan: '',
-    pagu: '',
-    realisasi: '',
-    tahun: '',
-    daerah: ''
-  })
+  const [formData, setFormData] = useState(EMPTY_FORM)
   const [message, setMessage] = useState('')
 
   const handleAccessSubmit = e => {
@@ -37,7 +49,7 @@ const FormInputTKD = ({ hideAccessCheck = false }) => {
     e.preventDefault()
 
     try {
-      await axios.post('https://charttkd-production.up.railway.app/tkd/create', formData, {
+      await axios.post(`${API_URL}/tkd/create`, formData, {
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': ADMIN_API_KEY
@@ -45,16 +57,7 @@ const FormInputTKD = ({ hideAccessCheck = false }) => {
       })
 
       setMessage('✅ Data berhasil disimpan!')
-      setFormData({
-        jenis_tkd: '',
-        semula: '',
-        menjadi: '',
-        pencadangan: '',
-        pagu: '',
-        realisasi: '',
-        tahun: '',
-        daerah: ''
-      })
+      setFormData(EMPTY_FORM)
     } catch (error) {
       console.error('❌ Gagal kirim data:', error)
       setMessage('❌ Terjadi kesalahan saat mengirim data')
@@ -104,75 +107,20 @@ const FormInputTKD = ({ hideAccessCheck = false }) => {
               />
             </div>
 
-            {/* Semula */}
-            <div className='flex flex-col'>
-              <label htmlFor='semula' className='mb-1 font-medium'>Semula</label>
-              <Input
-                id='semula'
-                name='semula'
-                value={formData.semula}
-                onChange={handleChange}
-                placeholder='(Rp)'
-                type='number'
-              />
-              <p className='text-gray-400'>contoh : 12345 (tanpa koma atau titik) </p>
-            </div>
-
-            {/* Menjadi */}
-            <div className='flex flex-col'>
-              <label htmlFor='menjadi' className='mb-1 font-medium'>Menjadi (Rp)</label>
-              <Input
-                id='menjadi'
-                name='menjadi'
-                value={formData.menjadi}
-                onChange={handleChange}
-                placeholder='(Rp)'
-                type='number'
-              />
-              <p className='text-gray-400'>contoh : 12345 (tanpa koma atau titik) </p>
-            </div>
-
-            {/* Pencadangan */}
-            <div className='flex flex-col'>
-              <label htmlFor='pencadangan' className='mb-1 font-medium'>Pencadangan (Rp)</label>
-              <Input
-                id='pencadangan'
-                name='pencadangan'
-                value={formData.pencadangan}
-                onChange={handleChange}
-                placeholder='(Rp)'
-                type='number'
-              />
-              <p className='text-gray-400'>contoh : 12345 (tanpa koma atau titik) </p>
-            </div>
-
-            {/* Pagu */}
-            <div className='flex flex-col'>
-              <label htmlFor='pagu' className='mb-1 font-medium'>Pagu (Rp)</label>
-              <Input
-                id='pagu'
-                name='pagu'
-                value={formData.pagu}
-                onChange={handleChange}
-                placeholder='(Rp)'
-                type='number'
-              />
-              <p className='text-gray-400'>contoh : 12345 (tanpa koma atau titik) </p>
-            </div>
-
-            {/* Realisasi */}
-            <div className='flex flex-col'>
-              <label htmlFor='realisasi' className='mb-1 font-medium'>Realisasi (Rp)</label>
-              <Input
-                id='realisasi'
-                name='realisasi'
-                value={formData.realisasi}
-                onChange={handleChange}
-                placeholder='(Rp)'
-                type='number'
-              />
-              <p className='text-gray-400'>contoh : 12345 (tanpa koma atau titik) </p>
-            </div>
+            {RUPIAH_FIELDS.map(({ name, label }) => (
+              <div key={name} className='flex flex-col'>
+                <label htmlFor={name} className='mb-1 font-medium'>{label}</label>
+                <Input
+                  id={name}
+                  name={name}
+                  value={formData[name]}
+                  onChange={handleChange}
+                  placeholder='(Rp)'
+                  type='number'
+                />
+                <p className='text-gray-400'>contoh : 12345 (tanpa koma atau titik) </p>
+              </div>
+            ))}
 
             {/* Tahun */}
             <div className='flex flex-col'>
@@ -199,11 +147,9 @@ const FormInputTKD = ({ hideAccessCheck = false }) => {
                 required
               >
                 <option value=''>Pilih Daerah</option>
-                <option value='Sulawesi Tengah'>Sulawesi Tengah</option>
-                <option value='Kota Palu'>Kota Palu</option>
-                <option value='Parigi Moutong'>Parigi Moutong</option>
-                <option value='Kabupaten Sigi'>Kabupaten Sigi</option>
-                <option value='Kabupaten Donggala'>Kabupaten Donggala</option>
+                {DAERAH_TKD.map(d => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
               </select>
             </div>
 
@@ -227,8 +173,9 @@ const FormInputTKD = ({ hideAccessCheck = false }) => {
   )
 }
 
-const Input = ({ name, value, onChange, placeholder, type = 'text' }) => (
+const Input = ({ id, name, value, onChange, placeholder, type = 'text' }) => (
   <input
+    id={id}
     name={name}
     value={value}
     onChange={onChange}
